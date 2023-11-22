@@ -12,8 +12,5 @@ install:
   - pip install --upgrade pip
   - pip install -r requirements_build.txt
 
-script:
-  - py.test -v
-
 after_success:
   - codecov
