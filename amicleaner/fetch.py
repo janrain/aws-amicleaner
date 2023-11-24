@@ -20,7 +20,7 @@ class Fetcher(object):
         self.ec2 = ec2 or boto3.client('ec2', config=Config(retries={'max_attempts': BOTO3_RETRIES}))
         self.asg = autoscaling or boto3.client('autoscaling')
 
-    #find amis for lc unattached to asg
+    # find amis for lc unattached to asg
     def fetch_unattached_lc(self):
         used_lcs = self.get_used_lc_names()
 
@@ -41,13 +41,13 @@ class Fetcher(object):
         """Remove duplicates"""
         amis = list(set(amis))
 
-        #make sure found launch configuration amis are not used by any launch template attached to asg
+        # make sure found launch configuration amis are not used by any launch template attached to asg
         used_lt_amis = self.get_used_lt_amis()
         amis = [i for i in amis if i not in used_lt_amis]
 
         return amis
 
-    #find amis for lt unattached to asg
+    # find amis for lt unattached to asg
     def fetch_unattached_lt(self):
 
         used_lts = self.get_used_lt_ids()
@@ -66,17 +66,17 @@ class Fetcher(object):
                          for ltd in (ltv.get("LaunchTemplateData", [])
                          for ltv in resp.get("LaunchTemplateVersions", []))]
             except KeyError:
-               continue
+                continue
         """Remove duplicates"""
         amis = list(set(amis))
 
-        #make sure found launch template amis are not used by any launch configuration attached to asg
+        # make sure found launch template amis are not used by any launch configuration attached to asg
         used_lc_amis = self.get_used_lc_amis()
         amis = [i for i in amis if i not in used_lc_amis]
 
         return amis
 
-    #get all launch template amis attached to asg
+    # get all launch template amis attached to asg
     def get_used_lt_amis(self):
         used_lts = self.get_used_lt_ids()
         used_lt_amis = []
@@ -84,16 +84,16 @@ class Fetcher(object):
             resp = self.ec2.describe_launch_template_versions(LaunchTemplateId=lt, Versions=['$Latest'])
             try:
                 used_lt_amis += [ltd["ImageId"]
-                         for ltd in (ltv.get("LaunchTemplateData", [])
-                         for ltv in resp.get("LaunchTemplateVersions", []))]
+                                 for ltd in (ltv.get("LaunchTemplateData", [])
+                                 for ltv in resp.get("LaunchTemplateVersions", []))]
             except KeyError:
-               continue
+                continue
         """Remove duplicates"""
         used_lt_amis = list(set(used_lt_amis))
 
         return used_lt_amis
 
-    #get all launch configuration amis attached to asg
+    # get all launch configuration amis attached to asg
     def get_used_lc_amis(self):
         used_lcs = self.get_used_lc_names()
         used_lc_amis = []
@@ -106,7 +106,7 @@ class Fetcher(object):
 
         return used_lc_amis
 
-    #get all launch configuration names attached to asg
+    # get all launch configuration names attached to asg
     def get_used_lc_names(self):
         resp = self.asg.get_paginator('describe_auto_scaling_groups')
         page_iterator = resp.paginate()
@@ -118,7 +118,7 @@ class Fetcher(object):
 
         return lc_names
 
-    #get all launch template IDs attached to asg
+    # get all launch template IDs attached to asg
     def get_used_lt_ids(self):
         resp = self.asg.get_paginator('describe_auto_scaling_groups')
         page_iterator = resp.paginate()
